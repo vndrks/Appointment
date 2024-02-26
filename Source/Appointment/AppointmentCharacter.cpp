@@ -60,6 +60,19 @@ void AAppointmentCharacter::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
 }
 
+void AAppointmentCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("MouseClick", IE_Pressed, this, &AAppointmentCharacter::OnMouseClick);
+}
+
+void AAppointmentCharacter::OnMouseClick()
+{
+	//UE_LOG(LogTemp, Log, TEXT("##### OnClick #####"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("##### OnClick #####"));
+}
+
 void AAppointmentCharacter::BeginPlay()
 {
 	Super::BeginPlay();

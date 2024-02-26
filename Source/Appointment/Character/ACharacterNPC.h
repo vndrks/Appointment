@@ -22,12 +22,18 @@ protected:
 	//	, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation
 	//	, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
+	virtual void NotifyActorOnClicked(FKey ButtonPressed) override;
+
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void OnMouseClick();
 
 
 };
