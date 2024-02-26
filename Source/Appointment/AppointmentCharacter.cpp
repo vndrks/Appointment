@@ -43,9 +43,27 @@ AAppointmentCharacter::AAppointmentCharacter()
 	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
+
+	//static ConstructorHelpers::FObjectFinder<USkeletalMesh> SKM_Quinn_NPC(
+	//TEXT("/Game/BattleWizardPolyart/Meshes/WizardSM.WizardSM"));
+
+	//USkeletalMeshComponent* SkeletalMeshComponent = GetMesh();
+
+	//if (SKM_Quinn_NPC.Succeeded() && SkeletalMeshComponent)
+	//{
+	//	SkeletalMeshComponent->SetSkeletalMesh(SKM_Quinn_NPC.Object);
+	//}
 }
 
 void AAppointmentCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+}
+
+void AAppointmentCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	check(GEngine != nullptr);
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, TEXT("I am Main Character."));
 }

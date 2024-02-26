@@ -32,6 +32,8 @@ void AAppointmentPlayerController::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+
+	bEnableClickEvents = true;
 }
 
 void AAppointmentPlayerController::SetupInputComponent()
