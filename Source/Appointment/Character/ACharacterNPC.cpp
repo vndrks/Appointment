@@ -3,6 +3,7 @@
 
 #include "ACharacterNPC.h"
 #include "Components/InputComponent.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 AACharacterNPC::AACharacterNPC()
@@ -20,6 +21,14 @@ AACharacterNPC::AACharacterNPC()
 	//{
 	//	SkeletalMeshComponent->SetSkeletalMesh(SKM_Quinn_NPC.Object);
 	//}
+
+	SpeechBubbleWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("SpeechBubbleWidget"));
+	SpeechBubbleWidgetComponent->SetupAttachment(RootComponent);
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClassFinder(TEXT(
+		"/Game/Widgets/BP_SpeechBubbleWidget"));
+	
+	WidgetClass = WidgetClassFinder.Class;	
 }
 
 // Called when the game starts or when spawned
@@ -31,6 +40,19 @@ void AACharacterNPC::BeginPlay()
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("We are using ACharacterNPC"));
 	}
+
+	if (WidgetClass)
+	{
+		UE_LOG(LogTemp, Log, TEXT("##### WidgetClass is Enabled"));
+		SpeechBubbleWidgetComponent->SetWidgetClass(WidgetClass);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("##### WidgetClass is Disabled"));
+	}
+
+	WidgetOffset = FVector(100.0f, 0.0f, 0.0f);
+	UpdateWidgetLocation();
 }
 
 //void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other
@@ -50,7 +72,7 @@ void AACharacterNPC::Tick(float DeltaTime)
 void AACharacterNPC::NotifyActorOnClicked(FKey ButtonPressed)
 {
 	Super::NotifyActorOnClicked(ButtonPressed);
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString("##### OnClick #####"));
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString("##### OnClick 444 #####"));
 }
 
 // Called to bind functionality to input
@@ -63,7 +85,20 @@ void AACharacterNPC::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AACharacterNPC::OnMouseClick()
 {
-	UE_LOG(LogTemp, Log, TEXT("##### OnClick #####"));
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("##### OnClick #####"));
+	UE_LOG(LogTemp, Log, TEXT("##### OnClick 111 #####"));
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("##### OnClick 222 #####"));
+}
+
+void AACharacterNPC::UpdateWidgetLocation()
+{
+	FVector ForwardVector = GetActorForwardVector();
+	FVector WidgetLocation = GetActorLocation() + ForwardVector * WidgetOffset;
+
+	if (SpeechBubbleWidgetComponent)
+	{
+		SpeechBubbleWidgetComponent->SetWorldLocation(WidgetLocation);
+		UE_LOG(LogTemp, Log, TEXT("##### SpeechBubbleWidgetComponent is Enabled #####"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("##### SpeechBubbleWidgetComponent is Enabled #####"));
+	}
 }
 
