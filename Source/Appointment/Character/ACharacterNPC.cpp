@@ -4,6 +4,9 @@
 #include "ACharacterNPC.h"
 #include "Components/InputComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Components/TextRenderComponent.h"
+#include "Components/TextBlock.h"
+
 
 // Sets default values
 AACharacterNPC::AACharacterNPC()
@@ -22,13 +25,26 @@ AACharacterNPC::AACharacterNPC()
 	//	SkeletalMeshComponent->SetSkeletalMesh(SKM_Quinn_NPC.Object);
 	//}
 
-	SpeechBubbleWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("SpeechBubbleWidget"));
-	SpeechBubbleWidgetComponent->SetupAttachment(RootComponent);
-
-	static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClassFinder(TEXT(
-		"/Game/Widgets/BP_SpeechBubbleWidget"));
 	
-	WidgetClass = WidgetClassFinder.Class;	
+	NPCUserWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("NPCUserWidget"));
+	NPCUserWidgetComponent->SetupAttachment(RootComponent);
+	NPCUserWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	NPCUserWidgetComponent->SetDrawSize(FVector2D(150.f, 30.f));
+	NPCUserWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 300.f));
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> SpeechBubbleWidgetClassFinder(TEXT(
+		"/Game/Widgets/BP_NPCUserWidget"));
+	NPCUserWidgetClass = SpeechBubbleWidgetClassFinder.Class;
+
+	NPCNameComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("NPCNameWidget"));
+	NPCNameComponent->SetupAttachment(RootComponent);
+	NPCNameComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	NPCNameComponent->SetDrawSize(FVector2D(150.f, 30.f));
+	NPCNameComponent->SetRelativeLocation(FVector(0.f, 0.f, 140.f));
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> NPCNameWidgetClassFinder(TEXT(
+		"/Game/Widgets/BP_NPCNameWidget"));
+	NPCNameWidgetClass = NPCNameWidgetClassFinder.Class;
 }
 
 // Called when the game starts or when spawned
@@ -37,22 +53,34 @@ void AACharacterNPC::BeginPlay()
 	Super::BeginPlay();
 
 	if (GEngine)
-	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("We are using ACharacterNPC"));
-	}
 
-	if (WidgetClass)
+	if (NPCUserWidgetClass)
 	{
-		UE_LOG(LogTemp, Log, TEXT("##### WidgetClass is Enabled"));
-		SpeechBubbleWidgetComponent->SetWidgetClass(WidgetClass);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("##### WidgetClass is Disabled"));
-	}
+		NPCUserWidgetComponent->SetWidgetClass(NPCUserWidgetClass);
 
-	WidgetOffset = FVector(100.0f, 0.0f, 0.0f);
-	UpdateWidgetLocation();
+		NPCUserWidgetObject = Cast<UNPCUserWidget>(NPCUserWidgetComponent->GetUserWidgetObject());
+
+		if (NPCUserWidgetObject)
+			NPCUserWidgetObject->SetPlainText();
+	}
+		
+
+	if (NPCNameWidgetClass)
+	{
+		NPCNameComponent->SetWidgetClass(NPCNameWidgetClass);
+		
+		// Get Widget Object
+		UUserWidget *NPCNameWidgetObject = Cast<UUserWidget>(NPCNameComponent->GetUserWidgetObject());
+		UTextBlock* NPCNameTextBlock = Cast<UTextBlock>(NPCNameWidgetObject->GetWidgetFromName(FName("NPC_NAME_TEXT")));
+
+		if (NPCNameTextBlock)
+			NPCNameTextBlock->SetText(FText::FromString(ShownName));
+	}
+		
+
+	WidgetOffset = FVector(10.0f, 10.0f, 10.0f);
+	// UpdateWidgetLocation();
 }
 
 //void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other
@@ -83,22 +111,38 @@ void AACharacterNPC::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction("MouseClick", IE_Pressed, this, &AACharacterNPC::OnMouseClick);
 }
 
+void AACharacterNPC::UpdateWidgetLocation()
+{
+	FVector ForwardVector = GetActorForwardVector();
+	FVector ActorLocation = GetActorLocation();
+	FVector WidgetLocation = GetActorLocation() + ForwardVector * WidgetOffset;
+
+	if (NPCUserWidgetComponent)
+	{
+		// NPCUserWidgetComponent->SetWorldLocation(WidgetLocation);
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("##### NPCUserWidgetComponent is Enabled #####"));
+	}
+}
+
 void AACharacterNPC::OnMouseClick()
 {
 	UE_LOG(LogTemp, Log, TEXT("##### OnClick 111 #####"));
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("##### OnClick 222 #####"));
 }
 
-void AACharacterNPC::UpdateWidgetLocation()
+void AACharacterNPC::ShowNPCName()
 {
-	FVector ForwardVector = GetActorForwardVector();
-	FVector WidgetLocation = GetActorLocation() + ForwardVector * WidgetOffset;
-
-	if (SpeechBubbleWidgetComponent)
-	{
-		SpeechBubbleWidgetComponent->SetWorldLocation(WidgetLocation);
-		UE_LOG(LogTemp, Log, TEXT("##### SpeechBubbleWidgetComponent is Enabled #####"));
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("##### SpeechBubbleWidgetComponent is Enabled #####"));
-	}
+	// NPCNameComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("PlayerName"));
 }
+
+// Below Name is the last token on ItemLabel on UnrealEditor. (e,g, BP_ACharacterNPC_Emily -> Name : Emily)
+//FString AACharacterNPC::GetName()
+//{
+//	FString AAFDName = GetFName().ToString();
+//	//FString Label = GetActorLabel();
+//	TArray<FString> SplitStrings;
+//	AAFDName.ParseIntoArray(SplitStrings, TEXT("_"), true);
+//
+//	return SplitStrings.Last();
+//}
 

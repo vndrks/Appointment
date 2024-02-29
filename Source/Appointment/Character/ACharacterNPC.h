@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "../Widgets/NPCUserWidget.h"
 #include "ACharacterNPC.generated.h"
 
 UCLASS()
@@ -32,14 +33,28 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(VisibleAnyWhere, Category = "Widgets")
-	class UWidgetComponent* SpeechBubbleWidgetComponent;
+	class UWidgetComponent* NPCUserWidgetComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-	TSubclassOf<UUserWidget> WidgetClass;
+	UPROPERTY(VisibleAnyWhere, Category = "Widgets")
+	class UWidgetComponent* NPCNameComponent;
+
+	UPROPERTY(VisibleAnyWhere, Category = "Widget")
+	class UNPCUserWidget* NPCUserWidgetObject;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widget")
+	TSubclassOf<UUserWidget> NPCUserWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widget")
+	TSubclassOf<UUserWidget> NPCNameWidgetClass;
+
+	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "NPC")
+	FString ShownName;
 
 private:
-	void UpdateWidgetLocation();
-	void OnMouseClick();
+	void	UpdateWidgetLocation();
+	void	OnMouseClick();
+	void	ShowNPCName();
+//	FString GetName();
 
 	FVector WidgetOffset;
 	
