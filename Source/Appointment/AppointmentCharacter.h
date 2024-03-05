@@ -29,6 +29,10 @@ public:
 
 	void OnMouseClick();
 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input)
+	bool IsDrinking;
+
 private:
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))

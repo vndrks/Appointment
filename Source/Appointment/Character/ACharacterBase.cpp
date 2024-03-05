@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ACharacterNPC.h"
+#include "ACharacterBase.h"
 #include "Components/InputComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -9,7 +9,7 @@
 
 
 // Sets default values
-AACharacterNPC::AACharacterNPC()
+AACharacterBase::AACharacterBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -45,15 +45,23 @@ AACharacterNPC::AACharacterNPC()
 	static ConstructorHelpers::FClassFinder<UUserWidget> NPCNameWidgetClassFinder(TEXT(
 		"/Game/Widgets/BP_NPCNameWidget"));
 	NPCNameWidgetClass = NPCNameWidgetClassFinder.Class;
+
+	/** Create Ability system Component, and set it to explicitly replicated */
+	AbilitySystemComponent = CreateDefaultSubobject<UGameAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
+
+	/** Create the attribute set, this replicated by default */
+	AttributeSet = CreateDefaultSubobject<UAppointmentAttributeSet>(TEXT("AttributeSet"));
+
 }
 
 // Called when the game starts or when spawned
-void AACharacterNPC::BeginPlay()
+void AACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
 	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("We are using ACharacterNPC"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("We are using ACharacterBase"));
 
 	if (NPCUserWidgetClass)
 	{
@@ -91,27 +99,57 @@ void AACharacterNPC::BeginPlay()
 //}
 
 // Called every frame
-void AACharacterNPC::Tick(float DeltaTime)
+void AACharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-void AACharacterNPC::NotifyActorOnClicked(FKey ButtonPressed)
+void AACharacterBase::NotifyActorOnClicked(FKey ButtonPressed)
 {
 	Super::NotifyActorOnClicked(ButtonPressed);
 	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, FString("##### OnClick 444 #####"));
 }
 
 // Called to bind functionality to input
-void AACharacterNPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AACharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	
-	PlayerInputComponent->BindAction("MouseClick", IE_Pressed, this, &AACharacterNPC::OnMouseClick);
+	PlayerInputComponent->BindAction("MouseClick", IE_Pressed, this, &AACharacterBase::OnMouseClick);
 }
 
-void AACharacterNPC::UpdateWidgetLocation()
+UAbilitySystemComponent* AACharacterBase::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+float AACharacterBase::GetHealth() const
+{
+	if(!AttributeSet)
+		return 1.f;
+
+	return AttributeSet->GetHealth();
+}
+
+bool AACharacterBase::ActivateAbilitiesWithTags(FGameplayTagContainer AbilityTags, bool bAllowRemoteActivation)
+{
+	if (AbilitySystemComponent)
+	{
+		return AbilitySystemComponent->TryActivateAbilitiesByTag(AbilityTags, bAllowRemoteActivation);
+	}
+	return false;
+}
+
+void AACharacterBase::GetActiveAbilitiesWithTags(FGameplayTagContainer AbilityTags, TArray<UAppointmentGameplayAbility*>& ActiveAbilities)
+{
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->GetActiveAbilitiesWithTags(AbilityTags, ActiveAbilities);
+	}
+}
+
+void AACharacterBase::UpdateWidgetLocation()
 {
 	FVector ForwardVector = GetActorForwardVector();
 	FVector ActorLocation = GetActorLocation();
@@ -124,19 +162,19 @@ void AACharacterNPC::UpdateWidgetLocation()
 	}
 }
 
-void AACharacterNPC::OnMouseClick()
+void AACharacterBase::OnMouseClick()
 {
 	UE_LOG(LogTemp, Log, TEXT("##### OnClick 111 #####"));
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("##### OnClick 222 #####"));
 }
 
-void AACharacterNPC::ShowNPCName()
+void AACharacterBase::ShowNPCName()
 {
 	// NPCNameComponent = CreateDefaultSubobject<UTextRenderComponent>(TEXT("PlayerName"));
 }
 
 // Below Name is the last token on ItemLabel on UnrealEditor. (e,g, BP_ACharacterNPC_Emily -> Name : Emily)
-//FString AACharacterNPC::GetName()
+//FString AACharacterBase::GetName()
 //{
 //	FString AAFDName = GetFName().ToString();
 //	//FString Label = GetActorLabel();
