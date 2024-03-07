@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "Engine/World.h"
+#include "./Weapons/AppointmentWeapon.h"
 
 AAppointmentCharacter::AAppointmentCharacter()
 {
@@ -57,10 +58,27 @@ void AAppointmentCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("MouseClick", IE_Pressed, this, &AAppointmentCharacter::OnMouseClick);
 }
 
+void AAppointmentCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	SpawnDefaultInventory();
+}
+
 void AAppointmentCharacter::OnMouseClick()
 {
 	//UE_LOG(LogTemp, Log, TEXT("##### OnClick #####"));
 	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("##### OnClick #####"));
+}
+
+USkeletalMeshComponent* AAppointmentCharacter::GetSpecificPawnMesh() const
+{
+	return GetMesh();
+}
+
+FName AAppointmentCharacter::GetWeaponAttachPoint()
+{
+	return WeaponAttachPoint;
 }
 
 void AAppointmentCharacter::BeginPlay()
@@ -69,4 +87,59 @@ void AAppointmentCharacter::BeginPlay()
 	check(GEngine != nullptr);
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, TEXT("I am Main Character."));
+}
+
+void AAppointmentCharacter::SetCurrentWeapon(AAppointmentWeapon* NewWeapon, AAppointmentWeapon* LastWeapon)
+{
+	AAppointmentWeapon* LocalLastWeapon = NULL;
+
+	if (LastWeapon != NULL)
+	{
+		LocalLastWeapon = LastWeapon;
+	}
+	else if (NewWeapon != CurrentWeapon)
+	{
+		LocalLastWeapon = CurrentWeapon;
+	}
+
+	if (LocalLastWeapon)
+	{
+		LocalLastWeapon->OnUnEquip();
+	}
+
+	CurrentWeapon = NewWeapon;
+
+	if (NewWeapon)
+	{
+		NewWeapon->SetOwingPawn(this);
+		NewWeapon->OnEquip(LastWeapon);
+	}
+}
+
+void AAppointmentCharacter::SpawnDefaultInventory()
+{
+	AAppointmentWeapon* NewWeapon;
+	for (int32 i = 0; i < DefaultInventoryClasses.Num(); ++i)
+	{
+		if (DefaultInventoryClasses[i])
+		{
+			FActorSpawnParameters SpawnParameters;
+			SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			NewWeapon = GetWorld()->SpawnActor<AAppointmentWeapon>(DefaultInventoryClasses[i], SpawnParameters);
+
+			if (NewWeapon)
+			{
+				Inventory.AddUnique(NewWeapon);
+				SetCurrentWeapon(Inventory[0], CurrentWeapon);
+			}
+		}
+	}
+
+	//if (Inventory.Num() > 0)
+	//{
+	//	if (Inventory[0])
+	//	{
+	//		SetCurrentWeapon(Inventory[0], CurrentWeapon);
+	//	}
+	//}
 }

@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "AppointmentCharacter.generated.h"
 
+class AAppointmentWeapon;
+
 UCLASS(Blueprintable)
 class AAppointmentCharacter : public ACharacter
 {
@@ -17,6 +19,20 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void SetCurrentWeapon(AAppointmentWeapon* NewWeapon, AAppointmentWeapon* LastWeapon);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	TArray<TSubclassOf<AAppointmentWeapon>> DefaultInventoryClasses;
+
+	void SpawnDefaultInventory();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	FName WeaponAttachPoint;
+	
+	TArray<AAppointmentWeapon*> Inventory;
+	
+	AAppointmentWeapon* CurrentWeapon;
+
 public:
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
@@ -27,11 +43,18 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent);
 
+	virtual void PostInitializeComponents() override;
+
 	void OnMouseClick();
 
+	USkeletalMeshComponent* GetSpecificPawnMesh() const;
 	
+	FName GetWeaponAttachPoint();
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input)
 	bool IsDrinking;
+
 
 private:
 	/** Top down camera */
@@ -42,4 +65,3 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 };
-

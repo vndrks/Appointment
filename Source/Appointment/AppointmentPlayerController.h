@@ -5,17 +5,19 @@
 #include "CoreMinimal.h"
 #include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
+#include "./Interface/AppointmentInventoryInterface.h"
 #include "AppointmentPlayerController.generated.h"
 
 /** Forward declaration to improve compiling times */
 class UNiagaraSystem;
 class UInputMappingContext;
 class UInputAction;
+class UAppointmentItem;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS()
-class AAppointmentPlayerController : public APlayerController
+class AAppointmentPlayerController : public APlayerController, public IAppointmentInventoryInterface
 {
 	GENERATED_BODY()
 
@@ -41,6 +43,9 @@ public:
 	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationTouchAction;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
+	void InventoryItemChanged(bool bAdded, UAppointmentItem* item);
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
