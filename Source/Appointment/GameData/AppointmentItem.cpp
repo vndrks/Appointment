@@ -3,3 +3,7 @@
 
 #include "AppointmentItem.h"
 
+FPrimaryAssetId UAppointmentItem::GetPrimaryAssetId() const
+{
+	return FPrimaryAssetId(ItemType, GetFName());
+}

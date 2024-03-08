@@ -30,7 +30,11 @@ public:
 	/**  */
 	/**  */
 	/**  */
-	/**  */
+	
+	
+	
+	/** Overridden to use saved type */
+	virtual FPrimaryAssetId GetPrimaryAssetId() const override;
 
 	
 };

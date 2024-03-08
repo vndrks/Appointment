@@ -21,12 +21,12 @@ AAppointmentGameMode::AAppointmentGameMode()
 	//}
 	
 	// set default controller to our Blueprinted controller
-	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(
-		TEXT("/Game/TopDown/Blueprints/BP_MainPlayerController"));
-	if(PlayerControllerBPClass.Class != NULL)
-	{
-		PlayerControllerClass = PlayerControllerBPClass.Class;
-	}
+	//static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerBPClass(
+	//	TEXT("/Game/TopDown/Blueprints/BP_MainPlayerController"));
+	//if(PlayerControllerBPClass.Class != NULL)
+	//{
+	//	PlayerControllerClass = PlayerControllerBPClass.Class;
+	//}
 }
 
 void AAppointmentGameMode::ChangeMenuWidget(TSubclassOf<UUserWidget> NewWidgetClass)

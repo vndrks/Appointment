@@ -24,6 +24,10 @@ class AAppointmentPlayerController : public APlayerController, public IAppointme
 public:
 	AAppointmentPlayerController();
 
+	/** Map of all items owned by this player, from definition to data */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory)
+	TMap<UAppointmentItem*, FAppointmentItemData> InventoryData;
+
 	/** Time Threshold to know if it was a short press */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	float ShortPressThreshold;
@@ -44,8 +48,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationTouchAction;
 
+	/** This is used by the [WB_InventoryList] Blueprint */
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void GetInventoryItems(TArray<UAppointmentItem*>& Items, FPrimaryAssetType ItemType);
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
 	void InventoryItemChanged(bool bAdded, UAppointmentItem* item);
+
+
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */

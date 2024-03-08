@@ -11,6 +11,7 @@
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
+#include "GameData/AppointmentItem.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -34,6 +35,23 @@ void AAppointmentPlayerController::BeginPlay()
 	}
 
 	bEnableClickEvents = true;
+}
+
+void AAppointmentPlayerController::GetInventoryItems(TArray<UAppointmentItem*>& Items, FPrimaryAssetType ItemType)
+{
+	for (const TPair<UAppointmentItem*, FAppointmentItemData>& Pair : InventoryData)
+	{
+		if (Pair.Key)
+		{
+			FPrimaryAssetId AssetId = Pair.Key->GetPrimaryAssetId();
+
+			// Filters based on item type
+			if (AssetId.PrimaryAssetType == ItemType || ItemType.IsValid())
+			{
+				Items.Add(Pair.Key);
+			}
+		}
+	}
 }
 
 void AAppointmentPlayerController::SetupInputComponent()
