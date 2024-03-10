@@ -82,10 +82,14 @@ public:
 	void OnDamaged(float DamageAmount, const FHitResult& HitInfo, const struct FGameplayTagContainer& DamageTags, AACharacterBase* InstigatorCharacter, AActor* DamageCauser);
 
 
-
 private:
 	void	UpdateWidgetLocation();
 	void	OnMouseClick();
+
+	//void	OnMoveRight();
+	//void	OnMoveLeft();
+	//void	OnMoveBack();
+	//void	OnJump();
 	void	ShowNPCName();
 //	FString GetName();
 

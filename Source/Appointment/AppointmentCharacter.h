@@ -19,6 +19,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void RotateCameraYaw(float AxisValue);
+
+	void Interact();
+
 	void SetCurrentWeapon(AAppointmentWeapon* NewWeapon, AAppointmentWeapon* LastWeapon);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
@@ -46,7 +50,7 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	void OnMouseClick();
-
+	void MoveForward(float AxisValue);
 	USkeletalMeshComponent* GetSpecificPawnMesh() const;
 	
 	FName GetWeaponAttachPoint();
