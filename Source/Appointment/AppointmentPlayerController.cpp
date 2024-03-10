@@ -8,10 +8,12 @@
 #include "AppointmentCharacter.h"
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
-#include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
+#include "Components/PawnComponent.h"
+
 #include "GameData/AppointmentItem.h"
+#include "./Input/AppointmentInputComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -73,10 +75,20 @@ void AAppointmentPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Triggered, this, &AAppointmentPlayerController::OnTouchTriggered);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Completed, this, &AAppointmentPlayerController::OnTouchReleased);
 		EnhancedInputComponent->BindAction(SetDestinationTouchAction, ETriggerEvent::Canceled, this, &AAppointmentPlayerController::OnTouchReleased);
+
+		// Setup custom event by Caspar
+		EnhancedInputComponent->BindAction(SetKeyboardMoveAction, ETriggerEvent::Triggered, this, &AAppointmentPlayerController::InputMove);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+	}
+
+	// 
+	if (UAppointmentInputComponent* ApptInputComponent = Cast<UAppointmentInputComponent>(InputComponent))
+	{
+		// Setup Custom Event by Caspar
+		// This is for Input Mapping within AppointmentCharacterComponent.
 	}
 }
 
@@ -142,4 +154,22 @@ void AAppointmentPlayerController::OnTouchReleased()
 {
 	bIsTouch = false;
 	OnSetDestinationReleased();
+}
+
+void AAppointmentPlayerController::InputMove(const FInputActionValue& InputActionValue)
+{
+	const FVector2D Value = InputActionValue.Get<FVector2D>();
+	const FRotator MovementRotation(0.0f, GetControlRotation().Yaw, 0.0f);
+
+	if (Value.X != 0.0f)
+	{
+		const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
+		GetPawn()->AddMovementInput(MovementDirection, Value.X);
+	}
+
+	if (Value.Y != 0.0f)
+	{
+		const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+		GetPawn()->AddMovementInput(MovementDirection, Value.Y);
+	}
 }

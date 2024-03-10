@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NativeGameplayTags.h"
 #include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
+#include "InputActionValue.h"
 #include "./Interface/AppointmentInventoryInterface.h"
 #include "AppointmentPlayerController.generated.h"
 
@@ -15,6 +17,9 @@ class UInputAction;
 class UAppointmentItem;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+
+/** Experimental */
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(InputTag_Move);
 
 UCLASS()
 class AAppointmentPlayerController : public APlayerController, public IAppointmentInventoryInterface
@@ -48,6 +53,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetDestinationTouchAction;
 
+	/** Move Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SetKeyboardMoveAction;
+
 	/** This is used by the [WB_InventoryList] Blueprint */
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void GetInventoryItems(TArray<UAppointmentItem*>& Items, FPrimaryAssetType ItemType);
@@ -72,6 +81,7 @@ protected:
 	void OnSetDestinationReleased();
 	void OnTouchTriggered();
 	void OnTouchReleased();
+	void InputMove(const FInputActionValue& InputActionValue);
 
 private:
 	FVector CachedDestination;
