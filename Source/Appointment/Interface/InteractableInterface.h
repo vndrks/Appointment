@@ -2,12 +2,13 @@
 
 #pragma once
 
-#include "../Appointment.h"
-#include "AppointmentInventoryInterface.generated.h"
+#include "CoreMinimal.h"
+#include "UObject/Interface.h"
+#include "InteractableInterface.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI, meta = (CannotImplementInterfaceInBlueprint))
-class UAppointmentInventoryInterface : public UInterface
+UINTERFACE(MinimalAPI)
+class UInteractableInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -15,10 +16,11 @@ class UAppointmentInventoryInterface : public UInterface
 /**
  * 
  */
-class APPOINTMENT_API IAppointmentInventoryInterface
+class APPOINTMENT_API IInteractableInterface
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
-
+public:
+	virtual void Interact() = 0;
 };

@@ -59,7 +59,7 @@ public:
 
 	/** */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* SetInteractAction;
+	UInputAction* InteractAction;
 
 	/** Camera moving */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -100,6 +100,7 @@ protected:
 	void YawCamera(float AxisValue);
 	void ZoomIn();
 	void ZoomOut();
+	void Interact(const FInputActionValue& InputActionValue);
 
 private:
 	FVector CachedDestination;

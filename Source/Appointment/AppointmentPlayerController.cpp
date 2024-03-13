@@ -14,7 +14,8 @@
 #include "Camera/CameraComponent.h"
 
 #include "GameData/AppointmentItem.h"
-#include "./Input/AppointmentInputComponent.h"
+#include "GameData/ApptItem.h"
+#include "Input/AppointmentInputComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -81,6 +82,7 @@ void AAppointmentPlayerController::SetupInputComponent()
 		// Setup custom event by Caspar
 		EnhancedInputComponent->BindAction(SetKeyboardMoveAction, ETriggerEvent::Triggered, this, &AAppointmentPlayerController::InputMove);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Started, this, &AAppointmentPlayerController::LookTest);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AAppointmentPlayerController::Interact);
 	}
 	else
 	{
@@ -107,7 +109,6 @@ void AAppointmentPlayerController::OnSetDestinationTriggered()
 	FollowTime += GetWorld()->GetDeltaSeconds();
 	
 	// We look for the location in the world where the player has pressed the input
-	// We look for the location in the world where the player has pressed the input
 	FHitResult Hit;
 	bool bHitSuccessful = false;
 	if (bIsTouch)
@@ -122,6 +123,7 @@ void AAppointmentPlayerController::OnSetDestinationTriggered()
 	// If we hit a surface, cache the location
 	if (bHitSuccessful)
 	{
+		
 		CachedDestination = Hit.Location;
 	}
 	
@@ -132,6 +134,10 @@ void AAppointmentPlayerController::OnSetDestinationTriggered()
 		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
 		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);
 	}
+
+	// Test Code
+	AActor* Actor = Hit.GetActor();
+	UE_LOG(LogTemp, Log, TEXT("### Hit Actor(Mouse Left Click : %s"), *Actor->GetName());
 }
 
 void AAppointmentPlayerController::OnSetDestinationReleased()
@@ -211,4 +217,33 @@ void AAppointmentPlayerController::ZoomIn()
 void AAppointmentPlayerController::ZoomOut()
 {
 	bZoomingIn = false;
+}
+
+void AAppointmentPlayerController::Interact(const FInputActionValue& InputActionValue)
+{
+	UE_LOG(LogTemp, Log, TEXT("##### Hit 0 #####"));
+	APawn* ControlledPawn = GetPawn();
+	AAppointmentCharacter* MainCharacter = Cast<AAppointmentCharacter>(ControlledPawn);
+	if (MainCharacter)
+	{
+		UCameraComponent* CameraComponent = MainCharacter->GetTopDownCameraComponent();
+
+		FVector Start = CameraComponent->GetComponentLocation();
+		FVector End = Start + CameraComponent->GetForwardVector() * 4000.0f;
+
+		FHitResult HitResult;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+
+		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+		{
+			//AActor* Actor = HitResult.GetActor();
+			//UE_LOG(LogTemp, Log, TEXT("Hit Actor: %s"), *Actor->GetName());
+
+			if (IInteractableInterface* Interface = Cast<IInteractableInterface>(HitResult.GetActor()))
+			{
+				Interface->Interact();
+			}
+		}
+	}
 }
