@@ -57,6 +57,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* SetKeyboardMoveAction;
 
+	/** */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SetInteractAction;
+
+	/** Camera moving */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* LookAction;
+
 	/** This is used by the [WB_InventoryList] Blueprint */
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 	void GetInventoryItems(TArray<UAppointmentItem*>& Items, FPrimaryAssetType ItemType);
@@ -70,6 +78,11 @@ protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
 
+	FVector2D MovementInput;
+	FVector2D CameraInput;
+	float ZoomFactor;
+	bool bZoomingIn;
+
 	virtual void SetupInputComponent() override;
 	
 	// To add mapping context
@@ -82,12 +95,18 @@ protected:
 	void OnTouchTriggered();
 	void OnTouchReleased();
 	void InputMove(const FInputActionValue& InputActionValue);
+	void LookTest(const FInputActionValue& InputActionValue);
+	void PitchCamera(float AxisValue);
+	void YawCamera(float AxisValue);
+	void ZoomIn();
+	void ZoomOut();
 
 private:
 	FVector CachedDestination;
 
 	bool bIsTouch; // Is it a touch device
 	float FollowTime; // For how long it has been pressed
+	bool bRightMouseClicked;
 };
 
 

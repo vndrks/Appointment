@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "Components/PawnComponent.h"
+#include "Camera/CameraComponent.h"
 
 #include "GameData/AppointmentItem.h"
 #include "./Input/AppointmentInputComponent.h"
@@ -23,6 +24,7 @@ AAppointmentPlayerController::AAppointmentPlayerController()
 	DefaultMouseCursor = EMouseCursor::Default;
 	CachedDestination = FVector::ZeroVector;
 	FollowTime = 0.f;
+	bRightMouseClicked = false;
 }
 
 void AAppointmentPlayerController::BeginPlay()
@@ -78,6 +80,7 @@ void AAppointmentPlayerController::SetupInputComponent()
 
 		// Setup custom event by Caspar
 		EnhancedInputComponent->BindAction(SetKeyboardMoveAction, ETriggerEvent::Triggered, this, &AAppointmentPlayerController::InputMove);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Started, this, &AAppointmentPlayerController::LookTest);
 	}
 	else
 	{
@@ -103,6 +106,7 @@ void AAppointmentPlayerController::OnSetDestinationTriggered()
 	// We flag that the input is being pressed
 	FollowTime += GetWorld()->GetDeltaSeconds();
 	
+	// We look for the location in the world where the player has pressed the input
 	// We look for the location in the world where the player has pressed the input
 	FHitResult Hit;
 	bool bHitSuccessful = false;
@@ -172,4 +176,39 @@ void AAppointmentPlayerController::InputMove(const FInputActionValue& InputActio
 		const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
 		GetPawn()->AddMovementInput(MovementDirection, Value.Y);
 	}
+}
+
+void AAppointmentPlayerController::LookTest(const FInputActionValue& InputActionValue)
+{
+	FVector2D LookAxisValue = InputActionValue.Get<FVector2D>();
+
+	APawn* MainCharacter = GetPawn();
+
+	InputActionValue.Get<FVector2D>();
+
+	if (MainCharacter && bRightMouseClicked)
+	{
+		GetPawn()->AddControllerYawInput(LookAxisValue.X);
+		GetPawn()->AddControllerPitchInput(LookAxisValue.Y);
+	}
+}
+
+void AAppointmentPlayerController::PitchCamera(float AxisValue)
+{
+	MovementInput.X = FMath::Clamp<float>(AxisValue, -1.0f, -1.0f);
+}
+
+void AAppointmentPlayerController::YawCamera(float AxisValue)
+{
+	MovementInput.Y = FMath::Clamp<float>(AxisValue, -1.0f, -1.0f);
+}
+
+void AAppointmentPlayerController::ZoomIn()
+{
+	bZoomingIn = true;
+}
+
+void AAppointmentPlayerController::ZoomOut()
+{
+	bZoomingIn = false;
 }

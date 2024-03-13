@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "InputActionValue.h"
 #include "AppointmentCharacter.generated.h"
 
 class AAppointmentWeapon;
@@ -21,7 +22,7 @@ protected:
 
 	void RotateCameraYaw(float AxisValue);
 
-	void Interact();
+	void Interact(const FInputActionValue& InputActionValue);
 
 	void SetCurrentWeapon(AAppointmentWeapon* NewWeapon, AAppointmentWeapon* LastWeapon);
 
@@ -36,6 +37,12 @@ protected:
 	TArray<AAppointmentWeapon*> Inventory;
 	
 	AAppointmentWeapon* CurrentWeapon;
+
+	FVector2D CameraInput;
+
+	void PitchCamera(float AxisValue);
+	void YawCamera(float AxisValue);
+	void PitchYawCamera(const FInputActionValue& InputActionValue);
 
 public:
 	// Called every frame.

@@ -32,11 +32,15 @@ AAppointmentCharacter::AAppointmentCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
-	CameraBoom->TargetArmLength = 800.f;
+	// CameraBoom->TargetArmLength = 800.f;
+	// CameraBoom->bEnableCameraLag = true;
+	// CameraBoom->CameraLagSpeed = 3.0f;
+	// CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
+	CameraBoom->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 50.0f), FRotator(-60.0f, 0.0f, 0.0f));
+	CameraBoom->TargetArmLength = 1200.f;
 	CameraBoom->bEnableCameraLag = true;
-	CameraBoom->CameraLagSpeed = 3.0f;
-	CameraBoom->SetRelativeRotation(FRotator(-60.f, 0.f, 0.f));
 	CameraBoom->bDoCollisionTest = false; // Don't want to pull camera in when it collides with level
+	CameraBoom->CameraLagSpeed = 3.0f;
 
 	// Create a camera...
 	TopDownCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
@@ -51,9 +55,41 @@ AAppointmentCharacter::AAppointmentCharacter()
 	
 }
 
+void AAppointmentCharacter::PitchCamera(float AxisValue)
+{
+	CameraInput.Y = AxisValue;
+}
+
+void AAppointmentCharacter::YawCamera(float AxisValue)
+{
+	CameraInput.X = AxisValue;
+}
+
+void AAppointmentCharacter::PitchYawCamera(const FInputActionValue& InputActionValue)
+{
+	FVector2D ActionValue = InputActionValue.Get<FVector2D>();
+
+	CameraInput.Y = ActionValue.Y;
+	CameraInput.X = ActionValue.X;
+}
+
 void AAppointmentCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+
+	//액터의 요를 회전하며, 이에 따라 어태치된 카메라가 회전
+	{
+		FRotator NewRotation = GetActorRotation();
+		NewRotation.Yaw += CameraInput.X;
+		SetActorRotation(NewRotation);
+	}
+
+	//카메라의 피치를 회전하되 항상 아래를 보도록 제한
+	{
+		FRotator NewRotation = CameraBoom->GetComponentRotation();
+		NewRotation.Pitch = FMath::Clamp(NewRotation.Pitch + CameraInput.Y, -80.0f, -15.0f);
+		CameraBoom->SetWorldRotation(NewRotation);
+	}
 }
 
 void AAppointmentCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -61,11 +97,17 @@ void AAppointmentCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("MouseClick", IE_Pressed, this, &AAppointmentCharacter::OnMouseClick);
-	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &AAppointmentCharacter::Interact);
 	
+	
+	// PlayerInputComponent->BindAxis("Interact", this, &AAppointmentCharacter::Interact);
 	PlayerInputComponent->BindAxis("MoveForward", this, &AAppointmentCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("RotateCameraYaw", this, &AAppointmentCharacter::RotateCameraYaw);
 	
+	PlayerInputComponent->BindAxis("MoveForward", this, &AAppointmentCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("RotateCameraYaw", this, &AAppointmentCharacter::RotateCameraYaw);
+
+	PlayerInputComponent->BindAxis("CameraPitch", this, &AAppointmentCharacter::PitchCamera);
+	PlayerInputComponent->BindAxis("CameraYaw", this, &AAppointmentCharacter::YawCamera);
 }
 
 void AAppointmentCharacter::PostInitializeComponents()
@@ -120,7 +162,7 @@ void AAppointmentCharacter::RotateCameraYaw(float AxisValue)
 	AddActorWorldRotation(FRotator(0.0f, AxisValue, 0.0f));
 }
 
-void AAppointmentCharacter::Interact()
+void AAppointmentCharacter::Interact(const FInputActionValue& InputActionValue)
 {
 	FVector Start = TopDownCameraComponent->GetComponentLocation();
 	FVector End = Start + TopDownCameraComponent->GetForwardVector() + 500.0f;
