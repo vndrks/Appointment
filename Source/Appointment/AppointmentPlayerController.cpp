@@ -123,7 +123,6 @@ void AAppointmentPlayerController::OnSetDestinationTriggered()
 	// If we hit a surface, cache the location
 	if (bHitSuccessful)
 	{
-		
 		CachedDestination = Hit.Location;
 	}
 	
@@ -137,7 +136,13 @@ void AAppointmentPlayerController::OnSetDestinationTriggered()
 
 	// Test Code
 	AActor* Actor = Hit.GetActor();
-	UE_LOG(LogTemp, Log, TEXT("### Hit Actor(Mouse Left Click : %s"), *Actor->GetName());
+	if (Actor)
+		UE_LOG(LogTemp, Log, TEXT("### Hit Actor(Mouse Left Click : %s"), *Actor->GetName());
+	
+	if (IInteractableInterface* Interface = Cast<IInteractableInterface>(Hit.GetActor()))
+	{
+		Interface->Interact(this);
+	}
 }
 
 void AAppointmentPlayerController::OnSetDestinationReleased()
@@ -242,7 +247,7 @@ void AAppointmentPlayerController::Interact(const FInputActionValue& InputAction
 
 			if (IInteractableInterface* Interface = Cast<IInteractableInterface>(HitResult.GetActor()))
 			{
-				Interface->Interact();
+				Interface->Interact(this);
 			}
 		}
 	}

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "NativeGameplayTags.h"
-#include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
 #include "./Interface/AppointmentInventoryInterface.h"
@@ -72,7 +71,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
 	void InventoryItemChanged(bool bAdded, UAppointmentItem* item);
 
-
+	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
+	void AddItemToInventoryWidget(FItemData ItemData);
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
@@ -100,6 +100,9 @@ protected:
 	void YawCamera(float AxisValue);
 	void ZoomIn();
 	void ZoomOut();
+
+	
+
 	void Interact(const FInputActionValue& InputActionValue);
 
 private:

@@ -2,6 +2,7 @@
 
 
 #include "ApptItem.h"
+#include "../AppointmentPlayerController.h"
 #include "Components/StaticMeshComponent.h"
 
 // Sets default values
@@ -25,8 +26,13 @@ void AApptItem::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AApptItem::Interact()
+void AApptItem::Interact(class AAppointmentPlayerController* PlayerController)
 {
+	if (PlayerController)
+	{
+		PlayerController->AddItemToInventoryWidget(ItemData);
+	}
+
 	Destroy();
 }
 
