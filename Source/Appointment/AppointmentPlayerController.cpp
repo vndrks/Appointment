@@ -59,6 +59,29 @@ void AAppointmentPlayerController::GetInventoryItems(TArray<UAppointmentItem*>& 
 	}
 }
 
+void AAppointmentPlayerController::AddHealth(float Value)
+{
+	Health += Value;
+	UE_LOG(LogTemp, Warning, TEXT("##### Added Health : %f"), Value);
+}
+
+void AAppointmentPlayerController::RemoveHunger(float Value)
+{
+	Hunger -= Value;
+	UE_LOG(LogTemp, Warning, TEXT("##### Remove Hunger : %f"), Value);
+}
+
+void AAppointmentPlayerController::UseItem(TSubclassOf<AApptItem> Item)
+{
+	if (Item)
+	{
+		if (AApptItem* ItemObject = Item.GetDefaultObject())
+		{
+			ItemObject->Use(this);
+		}
+	}
+}
+
 void AAppointmentPlayerController::SetupInputComponent()
 {
 	// set up gameplay key bindings

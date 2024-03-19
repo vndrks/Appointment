@@ -35,4 +35,5 @@ public:
 
 	FItemData GetItemData() const { return ItemData; }
 
+	virtual void Use(AAppointmentPlayerController* PlayerController) override;
 };

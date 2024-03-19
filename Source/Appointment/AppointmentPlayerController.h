@@ -14,6 +14,7 @@ class UNiagaraSystem;
 class UInputMappingContext;
 class UInputAction;
 class UAppointmentItem;
+class AApptItem;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -74,7 +75,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
 	void AddItemToInventoryWidget(FItemData ItemData);
 
+	void AddHealth(float Value);
+	void RemoveHunger(float Value);
+
 protected:
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void UseItem(TSubclassOf<AApptItem> Item);
+
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
 
@@ -82,6 +89,12 @@ protected:
 	FVector2D CameraInput;
 	float ZoomFactor;
 	bool bZoomingIn;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Inventory")
+	float Health;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Inventory")
+	float Hunger;
 
 	virtual void SetupInputComponent() override;
 	
