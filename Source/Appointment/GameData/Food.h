@@ -6,6 +6,7 @@
 #include "ApptItem.h"
 #include "Food.generated.h"
 
+class AAppointmentPlayerController;
 /**
  * 
  */
@@ -20,7 +21,7 @@ class APPOINTMENT_API AFood : public AApptItem
 
 protected:
 	UPROPERTY(EditAnywhere)
-	float HealthValue;
+	float RemoveFoodValue;
 
 public:
 	virtual void Use(AAppointmentPlayerController* PlayerController) override;

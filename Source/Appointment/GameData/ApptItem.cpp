@@ -12,6 +12,10 @@ AApptItem::AApptItem()
 	PrimaryActorTick.bCanEverTick = true;
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	RootComponent = ItemMesh;
+
+	bReplicates = true;
+
+	ItemData.ItemClass = StaticClass();
 }
 
 // Called when the game starts or when spawned
@@ -30,10 +34,9 @@ void AApptItem::Interact(class AAppointmentPlayerController* PlayerController)
 {
 	if (PlayerController)
 	{
-		PlayerController->AddItemToInventoryWidget(ItemData);
+		PlayerController->AddInventoryItem(ItemData);
+		Destroy();
 	}
-
-	Destroy();
 }
 
 void AApptItem::Use(AAppointmentPlayerController* PlayerController)

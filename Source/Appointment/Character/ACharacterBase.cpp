@@ -32,9 +32,9 @@ AACharacterBase::AACharacterBase()
 	NPCUserWidgetComponent->SetDrawSize(FVector2D(150.f, 30.f));
 	NPCUserWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 300.f));
 
-	static ConstructorHelpers::FClassFinder<UUserWidget> SpeechBubbleWidgetClassFinder(TEXT(
-		"/Game/Widgets/BP_NPCUserWidget"));
-	NPCUserWidgetClass = SpeechBubbleWidgetClassFinder.Class;
+	//static ConstructorHelpers::FClassFinder<UUserWidget> SpeechBubbleWidgetClassFinder(TEXT(
+	//	"/Game/Widgets/BP_NPCUserWidget"));
+	//NPCUserWidgetClass = SpeechBubbleWidgetClassFinder.Class;
 
 	NPCNameComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("NPCNameWidget"));
 	NPCNameComponent->SetupAttachment(RootComponent);
@@ -63,15 +63,15 @@ void AACharacterBase::BeginPlay()
 	if (GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("We are using ACharacterBase"));
 
-	if (NPCUserWidgetClass)
-	{
-		NPCUserWidgetComponent->SetWidgetClass(NPCUserWidgetClass);
+	//if (NPCUserWidgetClass)
+	//{
+	//	NPCUserWidgetComponent->SetWidgetClass(NPCUserWidgetClass);
 
-		NPCUserWidgetObject = Cast<UNPCUserWidget>(NPCUserWidgetComponent->GetUserWidgetObject());
+	//	NPCUserWidgetObject = Cast<UNPCUserWidget>(NPCUserWidgetComponent->GetUserWidgetObject());
 
-		if (NPCUserWidgetObject)
-			NPCUserWidgetObject->SetPlainText();
-	}
+	//	if (NPCUserWidgetObject)
+	//		NPCUserWidgetObject->SetPlainText();
+	//}
 		
 
 	if (NPCNameWidgetClass)

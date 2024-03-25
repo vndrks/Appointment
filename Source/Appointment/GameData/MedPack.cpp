@@ -7,6 +7,7 @@
 AMedPack::AMedPack()
 {
 	HealthValue = 10.0f;
+	ItemData.ItemClass = StaticClass();
 }
 
 void AMedPack::Use(AAppointmentPlayerController* PlayerController)

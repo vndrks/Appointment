@@ -59,32 +59,31 @@ void AAppointmentPlayerController::GetInventoryItems(TArray<UAppointmentItem*>& 
 	}
 }
 
+void AAppointmentPlayerController::AddInventoryItem(FItemData ItemData)
+{
+	if (HasAuthority())
+	{
+		InventoryItems.Add(ItemData);
+	}
+}
+
 void AAppointmentPlayerController::AddHealth(float Value)
 {
 	Health += Value;
-	UE_LOG(LogTemp, Warning, TEXT("##### Added Health : %f"), Value);
+	UpdateStates(Hunger, Health);
+	UE_LOG(LogTemp, Warning, TEXT("##### Added Health : %f"), Health);
 }
 
 void AAppointmentPlayerController::RemoveHunger(float Value)
 {
 	Hunger -= Value;
-	UE_LOG(LogTemp, Warning, TEXT("##### Remove Hunger : %f"), Value);
-}
-
-void AAppointmentPlayerController::UseItem(TSubclassOf<AApptItem> Item)
-{
-	if (Item)
-	{
-		if (AApptItem* ItemObject = Item.GetDefaultObject())
-		{
-			ItemObject->Use(this);
-		}
-	}
+	UpdateStates(Hunger, Health);
+	UE_LOG(LogTemp, Warning, TEXT("##### Remove Hunger : %f"), Hunger);
 }
 
 void AAppointmentPlayerController::SetupInputComponent()
 {
-	// set up gameplay key bindings
+	// set up gameplay key bindings 
 	Super::SetupInputComponent();
 
 	// Set up action bindings
@@ -118,6 +117,12 @@ void AAppointmentPlayerController::SetupInputComponent()
 		// Setup Custom Event by Caspar
 		// This is for Input Mapping within AppointmentCharacterComponent.
 	}
+}
+
+void AAppointmentPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(AAppointmentPlayerController, InventoryItems, COND_OwnerOnly);
 }
 
 void AAppointmentPlayerController::OnInputStarted()
@@ -259,19 +264,80 @@ void AAppointmentPlayerController::Interact(const FInputActionValue& InputAction
 		FVector Start = CameraComponent->GetComponentLocation();
 		FVector End = Start + CameraComponent->GetForwardVector() * 4000.0f;
 
-		FHitResult HitResult;
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-
-		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+		if (HasAuthority())
 		{
-			//AActor* Actor = HitResult.GetActor();
-			//UE_LOG(LogTemp, Log, TEXT("Hit Actor: %s"), *Actor->GetName());
+			Interact(Start, End);
+		}
+		else
+		{
+			Server_Interact(Start, End);
+		}
 
-			if (IInteractableInterface* Interface = Cast<IInteractableInterface>(HitResult.GetActor()))
-			{
-				Interface->Interact(this);
-			}
+		//FHitResult HitResult;
+		//FCollisionQueryParams Params;
+		//Params.AddIgnoredActor(this);
+
+		//if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+		//{
+		//	//AActor* Actor = HitResult.GetActor();
+		//	//UE_LOG(LogTemp, Log, TEXT("Hit Actor: %s"), *Actor->GetName());
+
+		//	if (IInteractableInterface* Interface = Cast<IInteractableInterface>(HitResult.GetActor()))
+		//	{
+		//		Interface->Interact(this);
+		//	}
+		//}
+	}
+}
+
+void AAppointmentPlayerController::Interact(FVector Start, FVector End)
+{
+	FHitResult HitResult;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
+	{
+		//AActor* Actor = HitResult.GetActor();
+		//UE_LOG(LogTemp, Log, TEXT("Hit Actor: %s"), *Actor->GetName());
+
+		if (IInteractableInterface* Interface = Cast<IInteractableInterface>(HitResult.GetActor()))
+		{
+			Interface->Interact(this);
 		}
 	}
 }
+
+void AAppointmentPlayerController::UseItem(TSubclassOf<AApptItem> Item)
+{
+	if (Item)
+	{
+		if (AApptItem* ItemObject = Item.GetDefaultObject())
+		{
+			ItemObject->Use(this);
+		}
+	}
+}
+
+//bool AAppointmentPlayerController::Server_Interact_Validate(FVector Start, FVector End)
+//{
+//	return true;
+//}
+//
+//void AAppointmentPlayerController::Server_Interact_Implementation(FVector Start, FVector End)
+//{
+//	// Interact(Start, End);
+//}
+
+void AAppointmentPlayerController::onRep_InventoryItems()
+{
+	if (InventoryItems.Num())
+	{
+		AddItemToInventoryWidget(InventoryItems[InventoryItems.Num() - 1]);
+	}
+}
+
+//void AAppointmentPlayerController::UpdateStates_Implementation(float NewHunger, float NewfloatHealth)
+//{
+//	
+//}

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "NativeGameplayTags.h"
 #include "GameFramework/PlayerController.h"
+#include "Net/UnrealNetwork.h"
 #include "InputActionValue.h"
 #include "./Interface/AppointmentInventoryInterface.h"
 #include "AppointmentPlayerController.generated.h"
@@ -72,16 +73,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
 	void InventoryItemChanged(bool bAdded, UAppointmentItem* item);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
-	void AddItemToInventoryWidget(FItemData ItemData);
-
+	void AddInventoryItem(FItemData ItemData);
 	void AddHealth(float Value);
 	void RemoveHunger(float Value);
 
-protected:
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
-	void UseItem(TSubclassOf<AApptItem> Item);
+	//UFUNCTION(Server, Reliable, WithValidation)
+	//void Server_Interact(FVector Start, FVector End);
 
+protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
 	uint32 bMoveToMouseCursor : 1;
 
@@ -96,8 +95,13 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Inventory")
 	float Hunger;
 
+	UPROPERTY(ReplicatedUsing = onRep_InventoryItems, Category = "Inventory")
+	TArray<FItemData> InventoryItems;
+
 	virtual void SetupInputComponent() override;
 	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	// To add mapping context
 	virtual void BeginPlay();
 
@@ -114,9 +118,22 @@ protected:
 	void ZoomIn();
 	void ZoomOut();
 
-	
-
 	void Interact(const FInputActionValue& InputActionValue);
+	void Interact(FVector Start, FVector End);
+	
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+	void UseItem(TSubclassOf<AApptItem> Item);
+
+	UFUNCTION()
+	void onRep_InventoryItems();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
+	void AddItemToInventoryWidget(FItemData ItemData);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Inventory")
+	void UpdateStates(float NewHunger, float NewfloatHealth);
+
+
 
 private:
 	FVector CachedDestination;
