@@ -84,6 +84,7 @@ void AAppointmentPlayerController::RemoveHunger(float Value)
 void AAppointmentPlayerController::SetupInputComponent()
 {
 	// set up gameplay key bindings 
+	// written by caspar. now occurred error on a when compiling project.
 	Super::SetupInputComponent();
 
 	// Set up action bindings
